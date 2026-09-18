@@ -276,3 +276,48 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   box-shadow: inset 0 -3px 0 #a83828, 0 0 8px rgba(232, 93, 76, .35);
 }
 .seat.aisle { background: var(--aisle); opacity: .3; }
+
+/* —— 冲突原因码 —— */
+.hint { color: var(--cinema-muted); font-size: .82rem; }
+.chip {
+  display: inline-block;
+  padding: .1rem .45rem;
+  border: 1px solid #5a4a30;
+  border-radius: 3px;
+  background: #1a1208;
+  color: var(--cinema-gold);
+  font-size: .78rem;
+}
+.retry-tag {
+  margin-left: .4rem;
+  padding: .05rem .35rem;
+  border-radius: 999px;
+  background: rgba(125, 222, 160, .15);
+  color: #7ddea0;
+  font-size: .68rem;
+}
+.panel-title {
+  margin: 1.4rem 0 .6rem;
+  font-size: .95rem;
+  color: #c8b890;
+  letter-spacing: .1em;
+}
+.table.catalog { max-width: 760px; }
+.table .row-off td { opacity: .5; }
+.dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  margin-right: .35rem;
+  border-radius: 50%;
+  background: #5a4a40;
+}
+.dot-on { background: #7ddea0; box-shadow: 0 0 6px rgba(125, 222, 160, .6); }
+button.mini {
+  padding: .2rem .6rem;
+  font-size: .75rem;
+  background: #2a1a22;
+  color: var(--cinema-gold);
+  border: 1px solid #5a4030;
+  font-weight: 600;
+}
+button.mini:hover:not(:disabled) { background: #3a2430; }

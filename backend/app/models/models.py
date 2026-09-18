@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -41,10 +41,25 @@ class SeatHold(Base):
     showtime: Mapped[Showtime] = relationship(back_populates="holds")
 
 
+class ReasonCode(Base):
+    """冲突原因码目录：稳定代码 + 中文说明 + 是否建议重试 + 是否启用。"""
+
+    __tablename__ = "reason_codes"
+    code: Mapped[str] = mapped_column(String(48), primary_key=True)
+    description_zh: Mapped[str] = mapped_column(String(200))
+    retry_recommended: Mapped[bool] = mapped_column(Boolean, default=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    conflicts: Mapped[list["ConflictLog"]] = relationship(back_populates="reason_code_ref")
+
+
 class ConflictLog(Base):
     __tablename__ = "conflict_logs"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     showtime_id: Mapped[int] = mapped_column(ForeignKey("showtimes.id"))
     party_size: Mapped[int] = mapped_column(Integer)
+    reason_code: Mapped[str] = mapped_column(
+        String(48), ForeignKey("reason_codes.code"), default="UNCLASSIFIED"
+    )
     reason: Mapped[str] = mapped_column(String(200))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    reason_code_ref: Mapped[ReasonCode] = relationship(back_populates="conflicts")
