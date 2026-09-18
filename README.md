@@ -24,7 +24,15 @@ docker compose up --build
 - `/seatmap` — 座位图（大网格热力）
 - `/hold` — 锁座
 - `/orders` — 订单
-- `/conflicts` — 冲突
+- `/conflicts` — 冲突（原因码筛选与启停）
+
+## 冲突原因码
+
+锁座失败写入冲突日志时，除可读说明外携带稳定 `reason_code`。目录预置：连续空座不足、与既有持座重叠、半对情侣、遮挡禁锁、跨过道非法、未归类（后几项业务未全开时码已就绪）。
+
+- `GET /api/conflict-reasons` — 查询代码、中文说明、是否建议重试、是否启用
+- `PATCH /api/conflict-reasons/{code}` — 启用/停用，body：`{"enabled": false}`
+- `GET /api/conflicts?reason_code=XXX` — 按码筛选冲突日志
 
 ## 使用说明
 

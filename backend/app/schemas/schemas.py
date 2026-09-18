@@ -43,8 +43,22 @@ class ConflictOut(BaseModel):
     showtime_id: int
     party_size: int
     reason: str
+    reason_code: str
     created_at: datetime
     model_config = {"from_attributes": True}
+
+
+class ConflictReasonOut(BaseModel):
+    code: str
+    description_zh: str
+    suggest_retry: bool
+    enabled: bool
+    builtin: bool
+    model_config = {"from_attributes": True}
+
+
+class ConflictReasonUpdate(BaseModel):
+    enabled: bool
 
 
 class SeatMapCell(BaseModel):

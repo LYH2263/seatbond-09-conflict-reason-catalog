@@ -5,9 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.models import ConflictLog, Hall, SeatHold, Showtime
+from app.models.models import ConflictLog, ConflictReason, Hall, SeatHold, Showtime
 from app.schemas.schemas import (
     ConflictOut,
+    ConflictReasonOut,
+    ConflictReasonUpdate,
     HallOut,
     HoldOut,
     HoldRequest,
@@ -22,6 +24,7 @@ from app.services.bond_engine import (
     find_bond_across_rows,
     find_contiguous_block,
 )
+from app.services.reason_codes import ReasonCode
 
 api_router = APIRouter()
 
@@ -106,8 +109,27 @@ def list_holds(db: Session = Depends(get_db)):
 
 
 @api_router.get("/conflicts", response_model=list[ConflictOut])
-def list_conflicts(db: Session = Depends(get_db)):
-    return db.scalars(select(ConflictLog).order_by(ConflictLog.id.desc())).all()
+def list_conflicts(reason_code: str | None = None, db: Session = Depends(get_db)):
+    stmt = select(ConflictLog).order_by(ConflictLog.id.desc())
+    if reason_code:
+        stmt = stmt.where(ConflictLog.reason_code == reason_code)
+    return db.scalars(stmt).all()
+
+
+@api_router.get("/conflict-reasons", response_model=list[ConflictReasonOut])
+def list_conflict_reasons(db: Session = Depends(get_db)):
+    return db.scalars(select(ConflictReason).order_by(ConflictReason.code)).all()
+
+
+@api_router.patch("/conflict-reasons/{code}", response_model=ConflictReasonOut)
+def update_conflict_reason(code: str, body: ConflictReasonUpdate, db: Session = Depends(get_db)):
+    reason = db.get(ConflictReason, code)
+    if not reason:
+        raise HTTPException(404, "原因码不存在")
+    reason.enabled = body.enabled
+    db.commit()
+    db.refresh(reason)
+    return reason
 
 
 @api_router.post("/holds", response_model=HoldOut)
@@ -139,6 +161,7 @@ def create_hold(body: HoldRequest, db: Session = Depends(get_db)):
                 showtime_id=body.showtime_id,
                 party_size=body.party_size,
                 reason=f"无足够连续空座（人数 {body.party_size}）",
+                reason_code=ReasonCode.NO_CONTIGUOUS_BLOCK.value,
             )
         )
         db.commit()
@@ -151,6 +174,7 @@ def create_hold(body: HoldRequest, db: Session = Depends(get_db)):
                 showtime_id=body.showtime_id,
                 party_size=body.party_size,
                 reason=f"与既有持座重叠：第{hits[0].row}排 {hits[0].start_col}-{hits[0].end_col}",
+                reason_code=ReasonCode.OVERLAP_EXISTING_HOLD.value,
             )
         )
         db.commit()

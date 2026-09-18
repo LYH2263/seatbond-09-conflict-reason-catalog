@@ -233,6 +233,45 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .ok { color: #7ddea0; margin-top: .75rem; }
 .mono { font-family: "IBM Plex Mono", monospace; }
 
+.chip {
+  display: inline-block;
+  padding: .1rem .5rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  border: 1px solid #4a3040;
+  white-space: nowrap;
+}
+.chip--code {
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--cinema-gold);
+  border-color: #5a4020;
+  background: #1a1208;
+}
+.chip--ok { color: #7ddea0; border-color: #2a5a3a; background: #0a1a10; }
+.chip--off { color: var(--cinema-muted); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--cinema-gold);
+  border: 1px solid #5a4020;
+  font-weight: 600;
+}
+.btn-ghost:hover { background: #1a1208; }
+
+.panel {
+  border: 1px solid #2a1a22;
+  background: var(--panel);
+  border-radius: 6px;
+  padding: .75rem .85rem;
+  margin-bottom: 1rem;
+}
+.panel h3 {
+  margin: .1rem 0 .6rem;
+  font-size: .85rem;
+  letter-spacing: .1em;
+  color: var(--cinema-gold);
+}
+
 .screen {
   text-align: center;
   margin: 0 auto .85rem;

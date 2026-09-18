@@ -4,9 +4,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.models import ConflictLog, Hall, SeatHold, Showtime
+from app.services.reason_codes import ReasonCode, ensure_reason_catalog
 
 
 def seed_if_empty(db: Session) -> None:
+    ensure_reason_catalog(db)
     if db.scalar(select(Hall.id).limit(1)):
         return
     h1 = Hall(name="一号厅", rows=8, cols=12, aisle_cols="5,6")
@@ -26,5 +28,21 @@ def seed_if_empty(db: Session) -> None:
             SeatHold(showtime_id=s3.id, order_code="SB-1003", row=2, start_col=1, end_col=2, party_size=2),
         ]
     )
-    db.add(ConflictLog(showtime_id=s1.id, party_size=4, reason="与既有持座重叠：第3排 2-4"))
+    # 两类失败样本：空座不足与持座重叠，reason_code 必须不同
+    db.add_all(
+        [
+            ConflictLog(
+                showtime_id=s2.id,
+                party_size=8,
+                reason="无足够连续空座（人数 8）",
+                reason_code=ReasonCode.NO_CONTIGUOUS_BLOCK.value,
+            ),
+            ConflictLog(
+                showtime_id=s1.id,
+                party_size=4,
+                reason="与既有持座重叠：第3排 2-4",
+                reason_code=ReasonCode.OVERLAP_EXISTING_HOLD.value,
+            ),
+        ]
+    )
     db.commit()
